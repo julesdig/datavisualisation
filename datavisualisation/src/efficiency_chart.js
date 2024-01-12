@@ -11,14 +11,25 @@ document.addEventListener('DOMContentLoaded', function () {
         { "Brand": "Tesla", "Model": "Model 3 Standard Range Plus", "Efficiency_WhKm": 153 },
         { "Brand": "Audi", "Model": "Q4 e-tron", "Efficiency_WhKm": 193 }
     ];
-    chart(d3, sampleData);
+    csv().then(result => {
+        const data=transformData(result);
+        console.log(data);
+        chart(d3, data);
+    });
+    function transformData(rawData) {
+        return rawData.map(car => ({
+            Brand: car.Brand,
+            Model: car.Model,
+            Efficiency_WhKm: car.Efficiency_WhKm
+        }));
+    }
     function chart (d3, data) {
         console.log("data2");
         const width = 928;
         const height = 500;
         const marginTop = 20;
         const marginRight = 0;
-        const marginBottom = 30;
+        const marginBottom = 60;
         const marginLeft = 40;
         const x = d3.scaleBand()
             .domain(d3.sort(data, d => -d.Efficiency_WhKm).map(d => d.Brand))
@@ -48,7 +59,12 @@ document.addEventListener('DOMContentLoaded', function () {
         svg.append("g")
             .attr("class", "x-axis")
             .attr("transform", `translate(0,${height - marginBottom})`)
-            .call(xAxis);
+            .call(xAxis)
+            .selectAll(".tick text")
+            .attr("transform", "rotate(-45)")
+            .style("text-anchor", "end")
+            .attr("dx", "-.7em")
+            .attr("dy", ".15em");
 
         svg.append("g")
             .attr("class", "y-axis")
