@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return rawData.map(car => ({
             Brand: car.Brand,
             Model: car.Model,
-            Efficiency_WhKm: car.Range_Km
+            Efficiency_WhKm: car.Efficiency_WhKm
         }));
     }
     function chart (d3, data) {
@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const marginRight = 0;
         const marginBottom = 60;
         const marginLeft = 40;
-
         const x = d3.scaleBand()
             .domain(d3.sort(data, d => -d.Efficiency_WhKm).map(d => d.Brand))
             .range([marginLeft, width - marginRight])
@@ -60,31 +59,24 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("transform", `translate(${marginLeft},0)`)
             .call(d3.axisLeft(y))
             .call(g => g.select(".domain").remove());
-        const lineY = y(466);
-        svg.append("line")
-            .attr("x1", marginLeft)
-            .attr("y1", lineY)
-            .attr("x2", width - marginRight)
-            .attr("y2", lineY)
-            .attr("stroke", "red")
-            .attr("stroke-width", 2);
+
         return svg.node();
 
         function zoom(svg) {
-        const extent = [[marginLeft, marginTop], [width - marginRight, height - marginTop]];
+            const extent = [[marginLeft, marginTop], [width - marginRight, height - marginTop]];
 
-        svg.call(d3.zoom()
-            .scaleExtent([1, 8])
-            .translateExtent(extent)
-            .extent(extent)
-            .on("zoom", zoomed));
+            svg.call(d3.zoom()
+                .scaleExtent([1, 8])
+                .translateExtent(extent)
+                .extent(extent)
+                .on("zoom", zoomed));
 
-        function zoomed(event) {
-            x.range([marginLeft, width - marginRight].map(d => event.transform.applyX(d)));
-            svg.selectAll(".bars rect").attr("x", d => x(d.Brand)).attr("width", x.bandwidth());
-            svg.selectAll(".x-axis").call(xAxis);
+            function zoomed(event) {
+                x.range([marginLeft, width - marginRight].map(d => event.transform.applyX(d)));
+                svg.selectAll(".bars rect").attr("x", d => x(d.Brand)).attr("width", x.bandwidth());
+                svg.selectAll(".x-axis").call(xAxis);
+            }
+            document.getElementById("efficiency_chart").appendChild(svg.node());
         }
-        document.getElementById("efficiency_chart").appendChild(svg.node());
     }
-}
 });
