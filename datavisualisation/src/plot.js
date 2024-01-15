@@ -1,82 +1,159 @@
 document.addEventListener('DOMContentLoaded', function () {
     csv().then(result => {
-        const data=transformData(result);
-        console.log(data);
-        chart(d3, data);
+        const data = transformData(result);
+        console.log(data, "data in plot.js");
+        chart_plot(d3, data);
     });
+
     function transformData(rawData) {
-        return rawData.map(car => ({
-            Brand: car.Brand,
-            Model: car.Model,
-            Efficiency_WhKm: car.Efficiency_WhKm
+        const brandPriceMap = new Map();
+
+        rawData.forEach(car => {
+            const brand = car.Brand;
+            const prices = +car.PriceEuro; // Convertir en nombre
+
+            if (!brandPriceMap.has(brand)) {
+                brandPriceMap.set(brand, []);
+            }
+
+            brandPriceMap.get(brand).push(prices);
+        });
+
+        const transformedData = Array.from(brandPriceMap, ([brand, prices]) => ({
+            brand,
+            prices
         }));
+
+        return transformedData;
     }
-    function chart (d3, data) {
-        console.log("data2");
+
+    function chart_plot(d3, data) {
+console.log("data2 plot");
         const width = 928;
         const height = 500;
         const marginTop = 20;
         const marginRight = 0;
         const marginBottom = 60;
-        const marginLeft = 40;
-        const x = d3.scaleBand()
-            .domain(d3.sort(data, d => -d.Efficiency_WhKm).map(d => d.Brand))
-            .range([marginLeft, width - marginRight])
-            .padding(0.1);
-        const xAxis = d3.axisBottom(x).tickSizeOuter(0);
-        const y = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.Efficiency_WhKm)]).nice()
-            .range([height - marginBottom, marginTop]);
+        const marginLeft = 60;
         const svg = d3.create("svg")
-            .attr("viewBox", [0, 0, width, height])
             .attr("width", width)
             .attr("height", height)
-            .attr("style", "max-width: 100%; height: auto;")
-            .call(zoom);
-        svg.append("g")
-            .attr("class", "bars")
-            .attr("fill", '#87CEEB')
-            .selectAll("rect")
+            .attr("viewBox", [0, 0, width, height])
+            .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;")
+            .attr("text-anchor", "middle");
+
+// Préparez les échelles
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.brand))
+            .range([marginLeft, width - marginRight])
+            .padding(0.1);
+
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d3.max(d.prices))])
+            .range([height - marginBottom, marginTop]);
+
+// Créez un groupe pour chaque marque
+        const brandGroups = svg.selectAll("g")
             .data(data)
-            .join("rect")
-            .attr("x", d => x(d.Brand))
-            .attr("y", d => y(d.Efficiency_WhKm))
-            .attr("height", d => y(0) - y(d.Efficiency_WhKm))
-            .attr("width", x.bandwidth());
-        // Append the axes.
+            .enter()
+            .append("g")
+            .attr("transform", d => `translate(${x(d.brand)},0)`);
+
+// Créez le box plot pour chaque marque
+        brandGroups.each(function (d) {
+            const brandGroup = d3.select(this);
+
+            const values = d.prices.sort(d3.ascending);
+            const q1 = d3.quantile(values, 0.25);
+            const q2 = d3.quantile(values, 0.50);
+            const q3 = d3.quantile(values, 0.75);
+            const iqr = q3 - q1;
+            const r0 = Math.max(d3.min(values), q1 - iqr * 1.5);
+            const r1 = Math.min(d3.max(values), q3 + iqr * 1.5);
+
+            // Range
+            brandGroup.append("path")
+                .attr("stroke", "currentColor")
+                .attr("d", `
+      M${x.bandwidth() / 2},${y(r1)}
+      V${y(r0)}
+    `);
+
+            // Quartiles
+            brandGroup.append("path")
+                .attr("fill", "#ddd")
+                .attr("d", `
+      M${x.bandwidth() / 4},${y(q3)}
+      H${x.bandwidth() * 3 / 4}
+      V${y(q1)}
+      H${x.bandwidth() / 4}
+      Z
+    `);
+
+            // Median
+            brandGroup.append("path")
+                .attr("stroke", "currentColor")
+                .attr("stroke-width", 2)
+                .attr("d", `
+      M${x.bandwidth() / 4},${y(q2)}
+      H${x.bandwidth() * 3 / 4}
+    `);
+
+            // Outliers
+            brandGroup.selectAll("circle")
+                .data(values.filter(v => v < r0 || v > r1))
+                .enter()
+                .append("circle")
+                .attr("r", 2)
+                .attr("cx", x.bandwidth() / 2)
+                .attr("cy", d => y(d));
+        });
+
+// Ajoutez l'axe x
         svg.append("g")
-            .attr("class", "x-axis")
             .attr("transform", `translate(0,${height - marginBottom})`)
-            .call(xAxis)
-            .selectAll(".tick text")
-            .attr("transform", "rotate(-45)")
+            .call(d3.axisBottom(x))
+            .selectAll("text")
             .style("text-anchor", "end")
-            .attr("dx", "-.7em")
-            .attr("dy", ".15em");
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-45)");
 
+// Ajoutez l'axe y
         svg.append("g")
-            .attr("class", "y-axis")
             .attr("transform", `translate(${marginLeft},0)`)
-            .call(d3.axisLeft(y))
-            .call(g => g.select(".domain").remove());
+            .call(d3.axisLeft(y).ticks(5));
 
-        return svg.node();
+// Ajoutez le titre
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", marginTop / 2)
+            .attr("text-anchor", "middle")
+            .text("Box Plot des Prix par Marque");
 
-        function zoom(svg) {
-            const extent = [[marginLeft, marginTop], [width - marginRight, height - marginTop]];
+// Ajoutez la légende
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", height - 5)
+            .attr("text-anchor", "middle")
+            .text("Marques");
 
-            svg.call(d3.zoom()
-                .scaleExtent([1, 8])
-                .translateExtent(extent)
-                .extent(extent)
-                .on("zoom", zoomed));
+// Ajoutez une ligne de séparation
+        svg.append("line")
+            .attr("x1", 0)
+            .attr("y1", height - marginBottom)
+            .attr("x2", width)
+            .attr("y2", height - marginBottom)
+            .attr("stroke", "black");
 
-            function zoomed(event) {
-                x.range([marginLeft, width - marginRight].map(d => event.transform.applyX(d)));
-                svg.selectAll(".bars rect").attr("x", d => x(d.Brand)).attr("width", x.bandwidth());
-                svg.selectAll(".x-axis").call(xAxis);
-            }
-            document.getElementById("efficiency_chart").appendChild(svg.node());
-        }
+// Ajoutez une légende pour l'axe y
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", marginRight )
+            .attr("dy", "1em")
+            .attr("text-anchor", "middle")
+            .text("Prix");
+        document.getElementById("plot").appendChild(svg.node());
     }
 });
