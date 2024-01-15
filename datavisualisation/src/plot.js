@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function chart_plot(d3, data) {
 console.log("data2 plot");
-        const width = 928;
-        const height = 500;
+        const width = 1600;
+        const height = 860;
         const marginTop = 20;
         const marginRight = 0;
         const marginBottom = 60;
@@ -81,7 +81,7 @@ console.log("data2 plot");
 
             // Quartiles
             brandGroup.append("path")
-                .attr("fill", "#ddd")
+                .attr("fill", "#87CEEB")
                 .attr("d", `
       M${x.bandwidth() / 4},${y(q3)}
       H${x.bandwidth() * 3 / 4}

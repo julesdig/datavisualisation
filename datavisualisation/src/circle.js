@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log("data");
         // Specify the chart’s dimensions.
         const width = 928;
-        const height = width;
+        const height = 928;
         const radius = width / 6;
 // Create the color scale.
         const color = d3.scaleOrdinal(d3.quantize(d3.interpolateRainbow, data.children.length + 1));
