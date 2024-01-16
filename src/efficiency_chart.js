@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     csv().then(result => {
         const data=transformData(result);
-        console.log(data);
         chart(d3, data);
     });
     function transformData(rawData) {
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }));
     }
     function chart (d3, data) {
-        console.log("data2");
         const width = 1600;
         const height = 860;
         const marginTop = 20;

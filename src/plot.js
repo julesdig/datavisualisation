@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     csv().then(result => {
         const data = transformData(result);
-        console.log(data, "data in plot.js");
         chart_plot(d3, data);
     });
 
@@ -28,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function chart_plot(d3, data) {
-console.log("data2 plot");
         const width = 1600;
         const height = 860;
         const marginTop = 20;
