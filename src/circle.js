@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     csv().then(result => {
         const data=transformData(result);
-        console.log(data);
         _chart(d3, data);
     });
 
@@ -42,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     function _chart(d3, data) {
-        console.log("data");
         // Specify the chart’s dimensions.
         const width = 928;
         const height = 928;

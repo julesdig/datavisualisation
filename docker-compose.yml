@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   site:
-    build: .
+    build: project
     ports:
       - "80:80"
     volumes:
