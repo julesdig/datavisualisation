@@ -13,7 +13,10 @@ Pour docker, il sert juste de serveur web pour le projet. Il n'y a pas de base d
 - Dockerfile
 - docker-compose.yml
 - apache-config.conf
-
+Pour executer le projet avoir docker sur la machine et faire la commande suivante
+```
+docker compose up -d 
+```
 Nous pourrons voir le project en ouvrant l'url suivant:
 ```
 http://localhost/
