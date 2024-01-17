@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("y", d => y(d.Efficiency_WhKm))
             .attr("height", d => y(0) - y(d.Efficiency_WhKm))
             .attr("width", x.bandwidth())
-            .attr("fill", d => (d.Brand === "Moyenne-Essence" || d.Brand === "Moyenne-Diesel") ? 'orange' : '#87CEEB')
+            .attr("fill", d => (d.Brand === "Moyenne-Essence" || d.Brand === "Moyenne-Diesel") ? '#FF7F50' : '#87CEEB')
             .on("mouseover", function (event, d) {
                 // Afficher l'infobulle au survol
                 tooltip.transition()
@@ -105,7 +105,8 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("x", marginLeft)
             .attr("y", lineY - 5)
             .attr("text-anchor", "start")
-            .style("fill", "red")
+            .style("fill", "black")
+            .style("font-weight", "bold")
             .text("Lyon --> Paris 466km");
 
         return svg.node();
