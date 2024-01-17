@@ -1,15 +1,22 @@
 document.addEventListener('DOMContentLoaded', function () {
     csv().then(result => {
         const data=transformData(result);
-        console.log(data);
+        console.log("efficient-chart",data);
         chart(d3, data);
     });
     function transformData(rawData) {
-        return rawData.map(car => ({
-            Brand: car.Brand,
-            Model: car.Model,
-            Efficiency_WhKm: car.Range_Km
-        }));
+        const brandEfficiencyMap = rawData.reduce((acc, car) => {
+            if (!acc[car.Brand] || acc[car.Brand].Efficiency_WhKm < car.Range_Km) {
+                acc[car.Brand] = {
+                    Brand: car.Brand,
+                    Efficiency_WhKm: car.Range_Km
+                };
+            }
+            return acc;
+        }, {});
+
+        const transformedData = Object.values(brandEfficiencyMap);
+        return transformedData;
     }
     function chart (d3, data) {
         console.log("data2");
@@ -49,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("width", x.bandwidth())
             .attr("fill", d => (d.Brand === "Moyenne-Essence" || d.Brand === "Moyenne-Diesel") ? '#FF7F50' : '#87CEEB')
             .on("mouseover", function (event, d) {
+                d3.select(this).attr("fill", "#79e89a");
                 // Afficher l'infobulle au survol
                 tooltip.transition()
                     .duration(200)
@@ -58,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     .style("top", (event.pageY - 28) + "px");
             })
             .on("mouseout", function (event, d) {
+                d3.select(this).attr("fill", d => (d.Brand === "Moyenne-Essence" || d.Brand === "Moyenne-Diesel") ? '#FF7F50' : '#87CEEB')
                 // Masquer l'infobulle lorsque la souris quitte la barre
                 tooltip.transition()
                     .duration(500)
