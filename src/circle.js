@@ -1,10 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
     csv().then(result => {
         const data=transformData(result);
+        console.log(data);
         _chart(d3, data);
     });
 
     function transformData(rawData) {
+        rawData.pop();
+        rawData.pop();
         const hierarchy = {
             name: "cars",
             children: []
@@ -41,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     function _chart(d3, data) {
+        console.log("data");
         // Specify the chart’s dimensions.
         const width = 928;
         const height = 928;
@@ -71,6 +75,18 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("viewBox", [-width / 2, -height / 2, width, width])
             .style("font", "10px sans-serif");
 
+        svg.append("text")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("font-weight", "bold")
+            .text("Graphique Sunburst des types de ")
+            .append("tspan") 
+            .attr("x", 0)
+            .attr("dy", "1.2em") // Ajustez cette valeur pour définir l'espacement vertical entre les lignes
+            .text("véhicules en fonction de l'autonomie");
+
         // Append the arcs.
         const path = svg.append("g")
             .selectAll("path")
@@ -92,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const format = d3.format(",d");
         path.append("title")
-            .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${format(d.value)}`);
+            .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${format(d.value) + " Km"}`);
 
         const label = svg.append("g")
             .attr("pointer-events", "none")
@@ -162,8 +178,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const y = (d.y0 + d.y1) / 2 * radius;
             return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
         }
-
-        // ... (Your existing _chart function)
 
         document.getElementById("my_dataviz").appendChild(svg.node());
     }

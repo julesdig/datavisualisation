@@ -1,10 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
     csv().then(result => {
         const data = transformData(result);
+        console.log(data, "data in plot.js");
         chart_plot(d3, data);
     });
 
     function transformData(rawData) {
+        rawData.pop();
+        rawData.pop();
         const brandPriceMap = new Map();
 
         rawData.forEach(car => {
@@ -27,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function chart_plot(d3, data) {
+console.log("data2 plot");
         const width = 1600;
         const height = 860;
         const marginTop = 20;
@@ -68,6 +72,21 @@ document.addEventListener('DOMContentLoaded', function () {
             const iqr = q3 - q1;
             const r0 = Math.max(d3.min(values), q1 - iqr * 1.5);
             const r1 = Math.min(d3.max(values), q3 + iqr * 1.5);
+
+            brandGroup.on("mouseover", function (event) {
+                const mean = calculateMean(d.prices);
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(`Moyenne: ${mean.toFixed(2)} €`)
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function () {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
 
             // Range
             brandGroup.append("path")
@@ -125,16 +144,18 @@ document.addEventListener('DOMContentLoaded', function () {
 // Ajoutez le titre
         svg.append("text")
             .attr("x", width / 2)
-            .attr("y", marginTop / 2)
+            .attr("y", marginTop)
             .attr("text-anchor", "middle")
-            .text("Box Plot des Prix par Marque");
+            .style("font-size", "16px")
+            .text("Box Plot des Prix en fonction des Marques");
 
 // Ajoutez la légende
         svg.append("text")
             .attr("x", width / 2)
             .attr("y", height - 5)
             .attr("text-anchor", "middle")
-            .text("Marques");
+            .style("font-size", "16px")
+            .text("Marques des voitures");
 
 // Ajoutez une ligne de séparation
         svg.append("line")
@@ -151,7 +172,16 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("y", marginRight )
             .attr("dy", "1em")
             .attr("text-anchor", "middle")
+            .style("font-size", "16px")
             .text("Prix");
         document.getElementById("plot").appendChild(svg.node());
     }
+    const tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+    
+    function calculateMean(prices) {
+        const sum = prices.reduce((acc, price) => acc + price, 0);
+        return sum / prices.length;
+}
 });

@@ -12,34 +12,36 @@
 </head>
 <body>
 
-<header class="d-flex justify-content-center align-items-center" style="background-color: #87CEEB ">
-    <p>Visualisation de données</p>
+<header class="header">
+    Comparaison de marque de voiture Electrique
 </header>
-<div class="text-center">
-    <img src="image.jpeg" class="img-fluid rounded">
-</div>
-<div class="container-fluid mt-5">
+<div class="main-content">
     <div class="d-flex justify-content-center">
         <div class="graph-container" id="graph1">
-            <div class="card" style="width: 60rem; border:none;">
+            <div class="card" style="width: 40rem; border:none;">
                 <div id="my_dataviz"></div>
             </div>
         </div>
         <div class="graph-container" id="graph2" style="display: none;">
-            <div class="card" style="width: 100rem;">
+            <div class="card" style="width: 75rem;">
                 <div id="efficiency_chart"></div>
             </div>
         </div>
         <div class="graph-container" id="graph3" style="display: none;">
-            <div class="card" style="width: 100rem;">
+            <div class="card" style="width: 75rem;">
                 <div id="plot"></div>
             </div>
         </div>
     </div>
+    <div class="button-container">
+        <button id="previousButton">←</button>
+        <button id="pauseResumeButton">Pause</button>
+        <button id="nextButton">→</button>
+    </div>
 </div>
-<footer class="py-3 my-4">
-    <p class="text-center text-body-secondary">© 2024 Tristan, Alexandre, Corneille,Jules</p>
-</footer>
+    <footer class="footer">
+        © 2024 Tristan, Alexandre, Corneille, Jules
+    </footer>
 <script src="csv.js"></script>
 <script src="slide.js"></script>
 <script src="efficiency_chart.js"></script>
